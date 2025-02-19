@@ -1,5 +1,4 @@
 import { test as base } from "@playwright/test";
-
 import LoginPage from "../pages/LoginPage";
 
 type LoginFixtures = {
@@ -9,9 +8,7 @@ type LoginFixtures = {
 export const loginTest = base.extend<LoginFixtures>({
   LoginPage: async ({ page }, use) => {
     const loginPage = new LoginPage(page);
-
     await loginPage.goto();
-
     await use(loginPage);
   },
 });

@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE "AppUser" (
+CREATE TABLE "appuser" (
     "id" BIGINT NOT NULL PRIMARY KEY,
     "is_deleted" BOOLEAN NOT NULL DEFAULT false,
     "username" TEXT NOT NULL,
@@ -15,7 +15,7 @@ CREATE TABLE "AppUser" (
 );
 
 -- CreateTable
-CREATE TABLE "Role" (
+CREATE TABLE "role" (
     "id" BIGINT NOT NULL PRIMARY KEY,
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
@@ -23,29 +23,17 @@ CREATE TABLE "Role" (
 );
 
 -- CreateTable
-CREATE TABLE "AppUserRole" (
+CREATE TABLE "appuser_role" (
     "appuser_id" BIGINT NOT NULL,
     "role_id" BIGINT NOT NULL,
 
     PRIMARY KEY ("appuser_id", "role_id"),
-    CONSTRAINT "AppUserRole_appuser_id_fkey" FOREIGN KEY ("appuser_id") REFERENCES "AppUser" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "AppUserRole_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "Role" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "appuser_role_appuser_id_fkey" FOREIGN KEY ("appuser_id") REFERENCES "appuser" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "appuser_role_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "role" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
-CREATE TABLE "UserPhone" (
-    "id" int NOT NULL AUTO_INCREMENT,
-    "user_id" bigint NOT NULL,
-    "phone_country_id" int NOT NULL,
-    "phone" varchar(20) NOT NULL,
-    "order_index" int NOT NULL,
-
-    PRIMARY KEY ("id"),
-    CONSTRAINT "AppUserRole_appuser_id_fkey" FOREIGN KEY ("appuser_id") REFERENCES "AppUser" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-);
-
+-- CreateIndex
+CREATE UNIQUE INDEX "appuser_username_key" ON "appuser"("username");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "AppUser_username_key" ON "AppUser"("username");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Role_name_key" ON "Role"("name");
+CREATE UNIQUE INDEX "role_name_key" ON "role"("name");

@@ -39,6 +39,7 @@ export default defineConfig({
   testDir: "./src/tests",
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
+    baseURL: 'http://localhost:9323',
     actionTimeout: 5000,
     screenshot: {
       fullPage: true,

@@ -12,7 +12,7 @@ model AppUser {
     is_deleted                 Boolean  @default(false)
     username                   String   @unique
     firstname                  String
-    lastname                   String
+    lastname                  String
     password                   String
     email                      String
     nonlocked                  Boolean
@@ -47,4 +47,50 @@ model AppUserRole {
 
     @@id([appuser_id, role_id])
     @@map("appuser_role")
+}
+
+model Clients {
+  client_id    Int     @id @default(autoincrement())
+  client_name  String
+  address      String
+  phone        String
+  Users        Users[]
+  Orders       Orders[]
+}
+
+model Users {
+  user_id           Int       @id @default(autoincrement())
+  username          String    @unique
+  password          String
+  registration_date DateTime
+  client_id         Int?
+  Clients           Clients?  @relation(fields: [client_id], references: [client_id])
+  Orders            Orders[]
+}
+
+model Orders {
+  order_id      Int       @id @default(autoincrement())
+  user_id       Int
+  client_id     Int
+  order_date    DateTime
+  total_amount  Float
+  Users         Users     @relation(fields: [user_id], references: [user_id])
+  Clients       Clients   @relation(fields: [client_id], references: [client_id])
+  OrderItems    OrderItems[]
+}
+
+model Products {
+  product_id    Int       @id @default(autoincrement())
+  product_name  String
+  price         Float
+  OrderItems    OrderItems[]
+}
+
+model OrderItems {
+  order_id    Int
+  product_id  Int
+  quantity    Int
+  Orders      Orders    @relation(fields: [order_id], references: [order_id])
+  Products    Products  @relation(fields: [product_id], references: [product_id])
+  @@id([order_id, product_id])
 }
