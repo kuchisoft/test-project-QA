@@ -1,15 +1,1 @@
-[
-  {
-    "OrderItems": [
-      {
-        "Products": {
-          "product_name": "Widget"
-        },
-        "quantity": 100
-      }
-    ],
-    "Users": {
-      "username": "alice_jones"
-    }
-  }
-]
+[]

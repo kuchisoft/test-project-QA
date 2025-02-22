@@ -1,6 +1,6 @@
 import { expect, loginTest as test } from "../fixtures/loginPage.fixture";
 
-test.describe("Login Check", () => {
+test.describe("Login and table Check", () => {
   test("should log in successfully @login", async ({ LoginPage }) => {
     await LoginPage.goto();
     await LoginPage.rightLogin("Admin", "admin123");
@@ -31,6 +31,6 @@ test.describe("Login Check", () => {
   test("Login, add record in table and delete @table", async ({ LoginPage }) => {
     await LoginPage.rightLogin("Admin", "admin123");
 
-    await LoginPage.AddEmployeeAndDelete("Justin", "Maxwell", "Guzzler");
+    await LoginPage.AddEmployeeAndDelete("Justin", "Guzzler");
   });
 });

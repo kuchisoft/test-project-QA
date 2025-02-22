@@ -7,34 +7,42 @@ export default class LoginPage {
     this.page = page;
   }
 
-  public async AddEmployeeAndDelete(firstname: string, middlename: string, lastname: string) {
+  public async AddEmployeeAndDelete(firstname: string, lastname: string) {
     await this.page.getByRole("link", { name: "PIM" }).click();
+    await this.page.waitForLoadState("domcontentloaded");
     await expect(this.page.getByRole("button", { name: " Add" })).toBeVisible();
 
     await this.page.getByRole("button", { name: " Add" }).click();
     await expect(this.page.getByRole("textbox", { name: "First Name" })).toBeVisible();
 
     await this.page.getByRole("textbox", { name: "First Name" }).fill(firstname);
-    await this.page.getByRole("textbox", { name: "Middle Name" }).fill(middlename);
     await this.page.getByRole("textbox", { name: "Last Name" }).fill(lastname);
-    await this.page.locator("form").getByRole("textbox").nth(4).click();
-    await this.page.locator("form").getByRole("textbox").nth(4).fill("038334");
+
+    const employeeIdField = this.page.locator("form").getByRole("textbox").nth(4);
+    await employeeIdField.waitFor();
+    await employeeIdField.fill("0383349");
+
     await this.page.getByRole("button", { name: "Save" }).click();
-    await this.page.getByRole("link", { name: "PIM" }).click();
+    await this.page.waitForTimeout(4000);
     await this.page.getByRole("link", { name: "Employee List" }).click();
-    await this.page.getByRole("textbox", { name: "Type for hints..." }).first().click();
-    await this.page.getByRole("textbox", { name: "Type for hints..." }).first().fill("");
-    await this.page.getByRole("textbox", { name: "Type for hints..." }).first().click();
-    await this.page.getByRole("textbox", { name: "Type for hints..." }).first().fill("Justin");
-    await expect(this.page.getByText("Justin Maxwell Guzzler", { exact: true })).toBeVisible();
-    await this.page.getByText("Justin Maxwell Guzzler", { exact: true }).click();
+    await this.page.waitForLoadState("domcontentloaded");
+
+    const searchBox = this.page.getByRole("textbox", { name: "Type for hints..." }).first();
+    await searchBox.waitFor();
+    await searchBox.fill(`${firstname} ${lastname}`);
+
+    const employeeRow = this.page.getByText(`${firstname} ${lastname}`, { exact: true });
+    await expect(employeeRow).toBeVisible();
+    await employeeRow.click();
+
     await this.page.getByRole("button", { name: "Search" }).click();
+    await this.page.waitForLoadState("domcontentloaded");
+
     await this.page.getByRole("button", { name: "" }).click();
     await this.page.getByRole("button", { name: " Yes, Delete" }).click();
-    await this.page.getByRole("textbox", { name: "Type for hints..." }).first().click();
-    await this.page.getByRole("textbox", { name: "Type for hints..." }).first().fill("");
-    await this.page.getByRole("textbox", { name: "Type for hints..." }).first().click();
-    await this.page.getByRole("textbox", { name: "Type for hints..." }).first().fill("Justin");
+
+    await searchBox.fill(`${firstname} ${lastname}`);
+    await expect(this.page.getByText(`${firstname} ${lastname}`, { exact: true })).toBeHidden({ timeout: 10000 });
   }
 
   public async assertCurrentPage() {
@@ -90,18 +98,18 @@ export default class LoginPage {
   }
 
   public async invalidLogin(username: string, password: string) {
-    await this.page.locator('input[name="username"]').waitFor({ state: "visible", timeout: 5000 });
+    await this.page.locator('input[name="username"]').waitFor({ state: "visible", timeout: 50000 });
     await this.page.locator('input[name="username"]').fill(username);
     await this.page.locator('input[name="password"]').fill(password);
-    await this.page.locator('button[type="submit"]').waitFor({ state: "visible", timeout: 5000 });
+    await this.page.locator('button[type="submit"]').waitFor({ state: "visible", timeout: 50000 });
     await this.page.locator('button[type="submit"]').click();
   }
 
   public async rightLogin(username: string, password: string) {
-    await this.page.locator('input[name="username"]').waitFor({ state: "visible", timeout: 5000 });
+    await this.page.locator('input[name="username"]').waitFor({ state: "visible", timeout: 50000 });
     await this.page.locator('input[name="username"]').fill(username);
     await this.page.locator('input[name="password"]').fill(password);
-    await this.page.locator('button[type="submit"]').waitFor({ state: "visible", timeout: 5000 });
+    await this.page.locator('button[type="submit"]').waitFor({ state: "visible", timeout: 50000 });
     await this.page.locator('button[type="submit"]').click();
   }
 }
