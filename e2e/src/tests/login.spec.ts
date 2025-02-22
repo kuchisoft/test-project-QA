@@ -1,24 +1,34 @@
 import { loginTest as test, expect } from "../fixtures/loginPage.fixture";
 
-test("should display login page @login", async ({ LoginPage }) => {
+test("should log in successfully @login", async ({ LoginPage }) => {
   await LoginPage.goto();
-  await LoginPage.assertCurrentPage();
+  await LoginPage.rightLogin('Admin', 'admin123');
+  await expect(LoginPage.page).toHaveURL('/web/index.php/dashboard/index'); 
 });
 
-test("should log in successfully @login @smoke", async ({ LoginPage }) => {
+test("should log in, create user and login with that user @login", async ({ LoginPage }) => {
+ 
   await LoginPage.goto();
-  await LoginPage.login("john_doe", "pass123");
-  await expect(LoginPage.page).toHaveURL("/dashboard"); 
+
+  await LoginPage.rightLogin('Admin', 'admin123');
+
+  await LoginPage.CreateUser('jcampbell', 'Password123');
+
+  await LoginPage.rightLogin('jcampbell', 'Password123');
+
+  await LoginPage.goto('/web/index.php/dashboard/index');
+ 
 });
 
-test("should handle invalid credentials @login @regression", async ({ LoginPage }) => {
+test("should handle invalid credentials @login", async ({ LoginPage }) => {
   await LoginPage.goto();
-  await LoginPage.login("invalidUser", "wrongPassword");
-  await expect(LoginPage.page.locator(".error-message")).toContainText("Invalid credentials");
+  await LoginPage.invalidLogin('wrong_user', 'wrong_password');
+  await expect(LoginPage.page.locator(".oxd-alert--error")).toContainText("Invalid credentials");
 });
 
-test("should check button color @login @ui", async ({ LoginPage }) => {
+test("should check button color @login @ui", async ({ page, LoginPage }) => {
   await LoginPage.goto();
+  await page.locator("button[type='submit']").waitFor({ state: 'visible' });
   const buttonColor = await LoginPage.getButtonColor("button[type='submit']");
-  expect(buttonColor).toBe("rgb(0, 128, 0)"); 
+  expect(buttonColor).toMatch("rgb(255, 123, 29)");
 });

@@ -1,0 +1,15 @@
+[
+  {
+    "Users": {
+      "username": "alice_jones"
+    },
+    "OrderItems": [
+      {
+        "quantity": 100,
+        "Products": {
+          "product_name": "Widget"
+        }
+      }
+    ]
+  }
+]
