@@ -1,4 +1,5 @@
 import { test as base } from "@playwright/test";
+
 import LoginPage from "../pages/LoginPage";
 
 type LoginFixtures = {
@@ -13,4 +14,4 @@ export const loginTest = base.extend<LoginFixtures>({
   },
 });
 
-export { expect } from "@playwright/test";
+export { expect, test } from "@playwright/test";

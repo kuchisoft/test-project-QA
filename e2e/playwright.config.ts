@@ -19,8 +19,6 @@ BigInt.prototype.toJSON = function (): string {
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
-  timeout: 60000, 
   forbidOnly: !!process.env.CI,
   fullyParallel: true,
   projects: [
@@ -38,6 +36,8 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   testDir: "./src/tests",
+  /* Fail the build on CI if you accidentally left test.only in the source code. */
+  timeout: 60000,
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     actionTimeout: 15000,
