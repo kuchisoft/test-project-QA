@@ -41,6 +41,9 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     actionTimeout: 15000,
+    launchOptions: {
+      slowMo: 1000,
+    },
     navigationTimeout: 60000,
     screenshot: {
       fullPage: true,

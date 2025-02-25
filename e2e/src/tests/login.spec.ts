@@ -25,7 +25,7 @@ test.describe("Login and table Check", () => {
   test("should check button color @login @ui", async ({ LoginPage, page }) => {
     await page.locator("button[type='submit']").waitFor({ state: "visible" });
     const buttonColor = await LoginPage.getButtonColor("button[type='submit']");
-    expect(buttonColor).toMatch("rgb(255, 123, 29)");
+    expect.soft(buttonColor).toMatch("rgb(255, 123, 29)");
   });
 
   test("Login, add record in table and delete @table", async ({ LoginPage }) => {

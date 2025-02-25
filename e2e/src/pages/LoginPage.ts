@@ -18,12 +18,8 @@ export default class LoginPage {
     await this.page.getByRole("textbox", { name: "First Name" }).fill(firstname);
     await this.page.getByRole("textbox", { name: "Last Name" }).fill(lastname);
 
-    const employeeIdField = this.page.locator("form").getByRole("textbox").nth(4);
-    await employeeIdField.waitFor();
-    await employeeIdField.fill("0383349");
-
     await this.page.getByRole("button", { name: "Save" }).click();
-    await this.page.waitForTimeout(4000);
+    await this.page.waitForLoadState("domcontentloaded");
     await this.page.getByRole("link", { name: "Employee List" }).click();
     await this.page.waitForLoadState("domcontentloaded");
 
@@ -59,8 +55,6 @@ export default class LoginPage {
     await this.page.getByRole("textbox", { name: "First Name" }).click();
     await this.page.getByRole("textbox", { name: "First Name" }).fill("Jeremy");
     await this.page.getByRole("textbox", { name: "Last Name" }).fill("Campbell");
-    await this.page.locator("form").getByRole("textbox").nth(4).click();
-    await this.page.locator("form").getByRole("textbox").nth(4).fill("03833");
     await this.page.locator("form span").click();
 
     await this.page.locator("div:nth-child(4) > .oxd-grid-2 > div > .oxd-input-group > div:nth-child(2) > .oxd-input").click();
