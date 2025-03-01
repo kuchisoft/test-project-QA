@@ -8,17 +8,15 @@ import sqlite3 from "sqlite3";
 
 type SQLiteDatabase = Database;
 
-export async function initDatabase(): Promise<void> {
-  let db: SQLiteDatabase | undefined;
+export async function initDatabase(): Promise<SQLiteDatabase | undefined> {
+  const db: SQLiteDatabase = await open({
+    driver: sqlite3.Database,
+    filename: "./prisma/test.db",
+  });
+
+  console.log("Initializing database...");
 
   try {
-    db = await open({
-      driver: sqlite3.Database,
-      filename: "test.db",
-    });
-
-    console.log("Initializing database...");
-
     await db.exec(`
       CREATE TABLE IF NOT EXISTS appuser (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -162,13 +160,12 @@ export async function initDatabase(): Promise<void> {
     `);
 
     console.log("Database initialized and seeded successfully!");
+    return db;
   } catch (error) {
     console.error("Error initializing or seeding database:", error);
     throw error;
   } finally {
-    if (db) {
-      await db.close();
-    }
+    await db.close();
   }
 }
 
