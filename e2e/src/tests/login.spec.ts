@@ -1,9 +1,4 @@
-import { mergeTests } from "@playwright/test";
-
-import { generateUserTest } from "../fixtures/generateUser.fixture";
-import { expect, loginTest } from "../fixtures/loginPage.fixture";
-
-export const test = mergeTests(generateUserTest, loginTest);
+import { expect, loginTest as test } from "../fixtures/loginPage.fixture";
 
 test.describe(
   "Login and tables QA Test",
@@ -35,8 +30,7 @@ test.describe(
 
         await LoginPage.login(generatedUser.username, generatedUser.password);
         await LoginPage.goto("/web/index.php/dashboard/index");
-      }, 
-    );
+      });
 
       test.describe("Search and delete employee", () => {
         test.beforeEach(async ({ generatedUser, LoginPage }) => {
