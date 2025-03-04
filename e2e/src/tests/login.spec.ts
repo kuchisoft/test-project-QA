@@ -18,7 +18,7 @@ test.describe(
     test.describe("Login Tests", () => {
       test.beforeEach(async ({ LoginPage }) => {
         await LoginPage.login();
-        const { pimLink } = LoginPage;
+        const pimLink = LoginPage.link.pim!;
         await pimLink.click();
       });
 
@@ -43,7 +43,7 @@ test.describe(
 
       test.describe("Search and delete employee", () => {
         test.beforeEach(async ({ generatedUser, LoginPage }) => {
-          const { pimLink } = LoginPage;
+          const pimLink = LoginPage.link.pim!;
           await LoginPage.createEmployee(
             generatedUser.firstName,
             generatedUser.middleName,
@@ -74,7 +74,7 @@ test.describe(
 
     test("Check button color", { tag: ["@color", "@ui"] }, async ({ LoginPage }) => {
       await LoginPage.btn.submit!.waitFor({ state: "visible" });
-      const buttonColor = await LoginPage.btn.color!.evaluate((el) => {
+      const buttonColor = await LoginPage.btn.submit!.evaluate((el) => {
         const computedStyle = window.getComputedStyle(el);
         let colorValue = computedStyle.backgroundColor;
         if (!colorValue || colorValue === "transparent" || colorValue === "") {
@@ -82,7 +82,8 @@ test.describe(
         }
         return colorValue;
       });
-      expect.soft(buttonColor).toMatch("rgb(255, 123, 29)");
+      const expectedColor = "rgb(255, 123, 29)";
+      expect.soft(buttonColor).toBe(expectedColor);
     });
   },
 );

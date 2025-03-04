@@ -12,28 +12,19 @@ interface ErrorLog {
 
 export default class LoginPage {
   readonly btn: Record<string, Locator>;
-  readonly employeeIdField: Locator;
-  readonly employeeListLink: Locator;
   readonly errorAlert: Locator;
-  readonly firstNameInput: Locator;
-  readonly lastNameInput: Locator;
-  readonly loginPasswordInput: Locator;
-  readonly loginUsernameInput: Locator;
+  readonly link: Record<string, Locator>;
+  readonly loginInput: Record<string, Locator>;
   readonly logoutMenuItem: Locator;
-  readonly middleNameInput: Locator;
   readonly page: Page;
-  readonly passwordInput: Locator;
-  readonly pimLink: Locator;
-  readonly RepeatPasswordInput: Locator;
+  readonly register: Record<string, Locator>;
   readonly searchBox: Locator;
   readonly userDropdown: Locator;
-  readonly usernameInput: Locator;
 
   constructor(page: Page) {
     this.page = page;
     this.btn = {
       add: this.page.getByRole("button", { name: " Add" }),
-      color: this.page.locator('button[type="submit"]'),
       confirmDelete: this.page.getByRole("button", { name: " Yes, Delete" }),
       delete: this.page.getByRole("button", { name: "" }),
       formSpan: this.page.locator("form span"),
@@ -41,19 +32,26 @@ export default class LoginPage {
       search: this.page.getByRole("button", { name: "Search" }),
       submit: this.page.locator('button[type="submit"]'),
     };
-    this.pimLink = this.page.getByRole("link", { name: "PIM" });
+    this.register = {
+      employeeId: this.page.locator("form").getByRole("textbox").nth(4),
+      firstName: this.page.getByRole("textbox", { name: "First Name" }),
+      lastName: this.page.getByRole("textbox", { name: "Last Name" }),
+      middleName: this.page.getByRole("textbox", { name: "Middle Name" }),
+      password: this.page.locator('input[type="password"]').first(),
+      repeatPassword: this.page.locator('input[type="password"]').nth(1),
+      username: this.page.locator("(//input[@class='oxd-input oxd-input--active'])[3]"),
+    };
+    this.link = {
+      employeeList: this.page.getByRole("link", { name: "Employee List" }),
+      pim: this.page.getByRole("link", { name: "PIM" }),
+    };
+    this.loginInput = {
+      password: this.page.getByRole("textbox", { name: "Password" }),
+      username: this.page.getByRole("textbox", { name: "Username" }),
+    };
+
     this.errorAlert = this.page.locator(".oxd-alert--error");
-    this.firstNameInput = this.page.getByRole("textbox", { name: "First Name" });
-    this.middleNameInput = this.page.getByRole("textbox", { name: "Middle Name" });
-    this.lastNameInput = this.page.getByRole("textbox", { name: "Last Name" });
-    this.loginUsernameInput = this.page.getByRole("textbox", { name: "Username" });
-    this.loginPasswordInput = this.page.getByRole("textbox", { name: "Password" });
-    this.employeeIdField = this.page.locator("form").getByRole("textbox").nth(4);
-    this.employeeListLink = this.page.getByRole("link", { name: "Employee List" });
     this.searchBox = this.page.getByRole("textbox", { name: "Type for hints..." }).first();
-    this.usernameInput = this.page.locator("div:nth-child(4) > .oxd-grid-2 > div > .oxd-input-group > div:nth-child(2) > .oxd-input");
-    this.passwordInput = this.page.locator('input[type="password"]').first();
-    this.RepeatPasswordInput = this.page.locator('input[type="password"]').nth(1);
     this.userDropdown = this.page.locator(".oxd-userdropdown-tab");
     this.logoutMenuItem = this.page.getByRole("menuitem", { name: "Logout" });
   }
@@ -65,18 +63,18 @@ export default class LoginPage {
   async confirmLayout() {
     await this.page.waitForLoadState("domcontentloaded");
     await expect(this.page).toHaveTitle("OrangeHRM");
-    await expect(this.loginUsernameInput).toBeVisible();
-    await expect(this.loginPasswordInput).toBeVisible();
+    await expect(this.loginInput.username!).toBeVisible();
+    await expect(this.loginInput.password!).toBeVisible();
     await expect(this.btn.submit!).toBeVisible();
     await this.assertCurrentPage();
   }
 
   async createEmployee(firstName: string, middleName: string, lastName: string, employeeId: string) {
     await this.btn.add!.click();
-    await this.firstNameInput.fill(firstName);
-    await this.middleNameInput.fill(middleName);
-    await this.lastNameInput.fill(lastName);
-    await this.employeeIdField.fill(employeeId);
+    await this.register.firstName!.fill(firstName);
+    await this.register.middleName!.fill(middleName);
+    await this.register.lastName!.fill(lastName);
+    await this.register.employeeId!.fill(employeeId);
     await this.btn.save!.click();
   }
 
@@ -89,14 +87,14 @@ export default class LoginPage {
     password: string,
   ) {
     await this.btn.add!.click();
-    await this.firstNameInput.fill(firstName);
-    await this.middleNameInput.fill(middleName);
-    await this.lastNameInput.fill(lastName);
-    await this.employeeIdField.fill(employeeId);
+    await this.register.firstName!.fill(firstName);
+    await this.register.middleName!.fill(middleName);
+    await this.register.lastName!.fill(lastName);
+    await this.register.employeeId!.fill(employeeId);
     await this.btn.formSpan!.click();
-    await this.usernameInput.fill(username);
-    await this.passwordInput.fill(password);
-    await this.RepeatPasswordInput.fill(password);
+    await this.register.username!.fill(username);
+    await this.register.password!.fill(password);
+    await this.register.repeatPassword!.fill(password);
     await this.btn.save!.click();
   }
 
@@ -134,14 +132,15 @@ export default class LoginPage {
   }
 
   async goto(path = "/web/index.php/auth/login") {
-    await this.page.goto(path, { timeout: 60000, waitUntil: "domcontentloaded" });
+    const baseUrl = process.env.DEMOQA ?? "https://opensource-demo.orangehrmlive.com/web/index.php";
+    await this.page.goto(`${baseUrl}${path}`, { timeout: 60000, waitUntil: "domcontentloaded" });
   }
 
   async login(username?: string, password?: string) {
     const user = username ?? process.env.APP_USERNAME!;
     const pass = password ?? process.env.APP_PASSWORD!;
-    await this.loginUsernameInput.fill(user);
-    await this.loginPasswordInput.fill(pass);
+    await this.loginInput.username!.fill(user);
+    await this.loginInput.password!.fill(pass);
     await this.btn.submit!.click();
   }
 
