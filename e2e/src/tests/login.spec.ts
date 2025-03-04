@@ -22,24 +22,21 @@ test.describe(
         await pimLink.click();
       });
 
-      test(
-        "Create and Login",
-        { annotation: { description: "Create user,logout and login with that user", type: "Create" } },
-        async ({ generatedUser, LoginPage }) => {
-          await LoginPage.createUserEmployee(
-            generatedUser.firstName,
-            generatedUser.middleName,
-            generatedUser.lastName,
-            generatedUser.employeeId,
-            generatedUser.username,
-            generatedUser.password,
-          );
-          await LoginPage.logout();
+      test("Create and Login", { tag: ["@Create"] }, async ({ generatedUser, LoginPage }) => {
+        await LoginPage.createUserEmployee(
+          generatedUser.firstName,
+          generatedUser.middleName,
+          generatedUser.lastName,
+          generatedUser.employeeId,
+          generatedUser.username,
+          generatedUser.password,
+        );
+        await LoginPage.logout();
 
-          await LoginPage.login(generatedUser.username, generatedUser.password);
-          await LoginPage.goto("/web/index.php/dashboard/index");
-        },
-      );
+        await LoginPage.login(generatedUser.username, generatedUser.password);
+        await LoginPage.goto("/web/index.php/dashboard/index");
+      }, 
+    );
 
       test.describe("Search and delete employee", () => {
         test.beforeEach(async ({ generatedUser, LoginPage }) => {
