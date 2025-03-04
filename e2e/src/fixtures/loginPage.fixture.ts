@@ -14,7 +14,7 @@ export const loginTest = base.extend<LoginFixtures>({
 
       await use(loginPage);
     },
-    { title: "My Login fixture test" },
+    { scope: "test" },
   ],
 });
 

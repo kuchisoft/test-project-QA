@@ -1,9 +1,9 @@
 import { mergeTests } from "@playwright/test";
 
-import { generateUserTest as testGenerate } from "../fixtures/generateUserFixtures";
-import { expect, loginTest as testLogin } from "../fixtures/loginPage.fixture";
+import { generateUserTest } from "../fixtures/generateUser.fixture";
+import { expect, loginTest } from "../fixtures/loginPage.fixture";
 
-export const test = mergeTests(testGenerate, testLogin);
+export const test = mergeTests(generateUserTest, loginTest);
 
 test.describe(
   "Login and tables QA Test",
@@ -17,8 +17,8 @@ test.describe(
 
     test.describe("Login Tests", () => {
       test.beforeEach(async ({ LoginPage }) => {
-        await LoginPage.login();
-        const pimLink = LoginPage.link.pim!;
+        await LoginPage.login("Admin", "admin123");
+        const { pimLink } = LoginPage;
         await pimLink.click();
       });
 
@@ -43,7 +43,7 @@ test.describe(
 
       test.describe("Search and delete employee", () => {
         test.beforeEach(async ({ generatedUser, LoginPage }) => {
-          const pimLink = LoginPage.link.pim!;
+          const { pimLink } = LoginPage;
           await LoginPage.createEmployee(
             generatedUser.firstName,
             generatedUser.middleName,
@@ -74,7 +74,7 @@ test.describe(
 
     test("Check button color", { tag: ["@color", "@ui"] }, async ({ LoginPage }) => {
       await LoginPage.btn.submit!.waitFor({ state: "visible" });
-      const buttonColor = await LoginPage.btn.submit!.evaluate((el) => {
+      const buttonColor = await LoginPage.btn.color!.evaluate((el) => {
         const computedStyle = window.getComputedStyle(el);
         let colorValue = computedStyle.backgroundColor;
         if (!colorValue || colorValue === "transparent" || colorValue === "") {

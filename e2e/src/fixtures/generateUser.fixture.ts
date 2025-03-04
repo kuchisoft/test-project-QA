@@ -14,18 +14,6 @@ type GeneratedUser = {
   username: string;
 };
 
-function generatePasswordWithNumber(length = 10): string {
-  let password: string;
-  do {
-    password = faker.internet.password({
-      length,
-      memorable: false,
-      pattern: /[A-Za-z0-9!@#$%^&*]/,
-    });
-  } while (!/\d/.test(password));
-  return password;
-}
-
 export const generateUserTest = base.extend<GenerateUserFixtures>({
   generatedUser: [
     async ({}, use) => {
@@ -34,7 +22,11 @@ export const generateUserTest = base.extend<GenerateUserFixtures>({
         firstName: faker.person.firstName(),
         lastName: faker.person.lastName(),
         middleName: faker.person.middleName(),
-        password: generatePasswordWithNumber(10),
+        password: faker.internet.password({
+          length: 10,
+          memorable: false,
+          pattern: /[A-Za-z0-9!@#$%^&*]/,
+        }),
         username: faker.internet.userName(),
       };
 
