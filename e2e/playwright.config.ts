@@ -34,16 +34,16 @@ export default defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [["html", { open: process.env.CI ? "never" : "on-failure" }]],
   /* Retry on CI only */
-  // retries: process.env.CI ? 1 : 0,
+  retries: process.env.CI ? 1 : 0,
   testDir: "./src/tests",
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   timeout: 60000,
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     actionTimeout: 15000,
-    // launchOptions: {
-    //   slowMo: 1000,
-    // },
+    launchOptions: {
+      slowMo: 1000,
+    },
     navigationTimeout: 60000,
     screenshot: {
       fullPage: true,

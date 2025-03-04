@@ -7,12 +7,15 @@ type LoginFixtures = {
 };
 
 export const loginTest = base.extend<LoginFixtures>({
-  LoginPage: async ({ page }, use) => {
-    const loginPage = new LoginPage(page);
-    await loginPage.goto();
+  LoginPage: [
+    async ({ page }, use) => {
+      const loginPage = new LoginPage(page);
+      await loginPage.goto();
 
-    await use(loginPage);
-  },
+      await use(loginPage);
+    },
+    { title: "My Login fixture test" },
+  ],
 });
 
 export { expect, test } from "@playwright/test";
