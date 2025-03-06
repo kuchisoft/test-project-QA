@@ -6,26 +6,26 @@ test.describe(
     annotation: { description: "This test suite is for login and tables QA test.", type: "test-case" },
   },
   () => {
-    test("layout", { tag: ["@layout"] }, async ({ LoginPage }) => {
-      await LoginPage.confirmLayout();
+    test("layout", { tag: ["@layout"] }, async ({ LoginPage, page }) => {
+      const { btn, input } = LoginPage;
+      await page.waitForLoadState("domcontentloaded");
+      await expect(page).toHaveTitle("OrangeHRM");
+      await expect(input.loginUsername!).toBeVisible();
+      await expect(input.loginPassword!).toBeVisible();
+      await expect(btn.submit!).toBeVisible();
+      await LoginPage.assertCurrentPage();
     });
 
     test.describe("Login Tests", () => {
-      test.beforeEach(async ({ LoginPage }) => {
-        await LoginPage.login("Admin", "admin123");
-        const { pimLink } = LoginPage;
-        await pimLink.click();
+      test.beforeEach(async ({ defaultUserdata, LoginPage }) => {
+        const { link } = LoginPage;
+
+        await LoginPage.login(defaultUserdata.user, defaultUserdata.pass);
+        await link.pim!.click();
       });
 
       test("Create and Login", { tag: ["@Create"] }, async ({ generatedUser, LoginPage }) => {
-        await LoginPage.createUserEmployee(
-          generatedUser.firstName,
-          generatedUser.middleName,
-          generatedUser.lastName,
-          generatedUser.employeeId,
-          generatedUser.username,
-          generatedUser.password,
-        );
+        await LoginPage.createUserEmployee(generatedUser);
         await LoginPage.logout();
 
         await LoginPage.login(generatedUser.username, generatedUser.password);
@@ -34,17 +34,12 @@ test.describe(
 
       test.describe("Search and delete employee", () => {
         test.beforeEach(async ({ generatedUser, LoginPage }) => {
-          const { pimLink } = LoginPage;
-          await LoginPage.createEmployee(
-            generatedUser.firstName,
-            generatedUser.middleName,
-            generatedUser.lastName,
-            generatedUser.employeeId,
-          );
-          await pimLink.click();
+          const { link } = LoginPage;
+          await LoginPage.createEmployee(generatedUser);
+          await link.pim!.click();
         });
 
-        test("Search and confirm", { tag: ["@search"] }, async ({ generatedUser, LoginPage }) => {
+        test("Search and confirm", { tag: ["@search"] }, async ({ generatedUser, LoginPage }): Promise<void> => {
           const isEmployeeFound = await LoginPage.searchEmployee(generatedUser.firstName, generatedUser.middleName, generatedUser.lastName);
           expect(isEmployeeFound).toBe(true);
         });

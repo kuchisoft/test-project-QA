@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import * as fs from "fs/promises";
 import * as path from "path";
 
+import { GeneratedUser } from "../fixtures/generateUser.fixture";
+
 dotenv.config();
 
 interface ErrorLog {
@@ -13,21 +15,13 @@ interface ErrorLog {
 export default class LoginPage {
   readonly btn: Record<string, Locator>;
   readonly employeeIdField: Locator;
-  readonly employeeListLink: Locator;
   readonly errorAlert: Locator;
-  readonly firstNameInput: Locator;
-  readonly lastNameInput: Locator;
-  readonly loginPasswordInput: Locator;
-  readonly loginUsernameInput: Locator;
+  readonly input: Record<string, Locator>;
+  readonly link: Record<string, Locator>;
   readonly logoutMenuItem: Locator;
-  readonly middleNameInput: Locator;
   readonly page: Page;
-  readonly passwordInput: Locator;
-  readonly pimLink: Locator;
-  readonly RepeatPasswordInput: Locator;
   readonly searchBox: Locator;
   readonly userDropdown: Locator;
-  readonly usernameInput: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -41,19 +35,23 @@ export default class LoginPage {
       search: this.page.getByRole("button", { name: "Search" }),
       submit: this.page.locator('button[type="submit"]'),
     };
-    this.pimLink = this.page.getByRole("link", { name: "PIM" });
+    this.input = {
+      firstName: this.page.getByRole("textbox", { name: "First Name" }),
+      lastName: this.page.getByRole("textbox", { name: "Last Name" }),
+      loginPassword: this.page.getByRole("textbox", { name: "Password" }),
+      loginUsername: this.page.getByRole("textbox", { name: "Username" }),
+      middleName: this.page.getByRole("textbox", { name: "Middle Name" }),
+      password: this.page.locator('input[type="password"]').first(),
+      repeatPassword: this.page.locator('input[type="password"]').nth(1),
+      username: this.page.locator("(//input[@class='oxd-input oxd-input--active'])[3]"),
+    };
+    this.link = {
+      employeeList: this.page.getByRole("link", { name: "Employee List" }),
+      pim: this.page.getByRole("link", { name: "PIM" }),
+    };
     this.errorAlert = this.page.locator(".oxd-alert--error");
-    this.firstNameInput = this.page.getByRole("textbox", { name: "First Name" });
-    this.middleNameInput = this.page.getByRole("textbox", { name: "Middle Name" });
-    this.lastNameInput = this.page.getByRole("textbox", { name: "Last Name" });
-    this.loginUsernameInput = this.page.getByRole("textbox", { name: "Username" });
-    this.loginPasswordInput = this.page.getByRole("textbox", { name: "Password" });
     this.employeeIdField = this.page.locator("form").getByRole("textbox").nth(4);
-    this.employeeListLink = this.page.getByRole("link", { name: "Employee List" });
     this.searchBox = this.page.getByRole("textbox", { name: "Type for hints..." }).first();
-    this.usernameInput = this.page.locator("(//input[@class='oxd-input oxd-input--active'])[3]");
-    this.passwordInput = this.page.locator('input[type="password"]').first();
-    this.RepeatPasswordInput = this.page.locator('input[type="password"]').nth(1);
     this.userDropdown = this.page.locator(".oxd-userdropdown-tab");
     this.logoutMenuItem = this.page.getByRole("menuitem", { name: "Logout" });
   }
@@ -65,42 +63,39 @@ export default class LoginPage {
   async confirmLayout() {
     await this.page.waitForLoadState("domcontentloaded");
     await expect(this.page).toHaveTitle("OrangeHRM");
-    await expect(this.loginUsernameInput).toBeVisible();
-    await expect(this.loginPasswordInput).toBeVisible();
+    await expect(this.input.loginUsername!).toBeVisible();
+    await expect(this.input.loginPassword!).toBeVisible();
     await expect(this.btn.submit!).toBeVisible();
     await this.assertCurrentPage();
   }
 
-  async createEmployee(firstName: string, middleName: string, lastName: string, employeeId: string) {
+  async createEmployee(generatedUser: GeneratedUser): Promise<void> {
     await this.btn.add!.click();
-    await this.firstNameInput.fill(firstName);
-    await this.middleNameInput.fill(middleName);
-    await this.lastNameInput.fill(lastName);
-    await this.employeeIdField.fill(employeeId);
+    await this.input.firstName!.fill(generatedUser.firstName);
+    await this.input.middleName!.fill(generatedUser.middleName);
+    await this.input.lastName!.fill(generatedUser.lastName);
+    await this.employeeIdField.fill(generatedUser.employeeId);
     await this.btn.save!.click();
   }
 
-  async createUserEmployee(
+  async createUserEmployee(generatedUser: GeneratedUser): Promise<void> {
+    await this.btn.add!.click();
+    await this.input.firstName!.fill(generatedUser.firstName);
+    await this.input.middleName!.fill(generatedUser.middleName);
+    await this.input.lastName!.fill(generatedUser.lastName);
+    await this.employeeIdField.fill(generatedUser.employeeId);
+    await this.btn.formSpan!.click();
+    await this.input.username!.fill(generatedUser.username);
+    await this.input.password!.fill(generatedUser.password);
+    await this.input.repeatPassword!.fill(generatedUser.password);
+    await this.btn.save!.click();
+  }
+
+  async deleteEmployee(
     firstName: string,
     middleName: string,
     lastName: string,
-    employeeId: string,
-    username: string,
-    password: string,
-  ) {
-    await this.btn.add!.click();
-    await this.firstNameInput.fill(firstName);
-    await this.middleNameInput.fill(middleName);
-    await this.lastNameInput.fill(lastName);
-    await this.employeeIdField.fill(employeeId);
-    await this.btn.formSpan!.click();
-    await this.usernameInput.fill(username);
-    await this.passwordInput.fill(password);
-    await this.RepeatPasswordInput.fill(password);
-    await this.btn.save!.click();
-  }
-
-  async deleteEmployee(firstName: string, middleName: string, lastName: string) {
+  ): Promise<{ message: string; success: boolean; timestamp: string }> {
     const isEmployeeFound = await this.searchEmployee(firstName, middleName, lastName);
 
     if (!isEmployeeFound) {
@@ -113,24 +108,14 @@ export default class LoginPage {
       return errorData;
     }
 
-    try {
-      await this.btn.delete!.click();
-      await this.btn.confirmDelete!.click();
-      return {
-        message: `Employee ${firstName} ${lastName} deleted successfully.`,
-        success: true,
-        timestamp: new Date().toISOString(),
-      };
-    } catch (error) {
-      const errorData = {
-        error: error instanceof Error ? error.message : String(error),
-        message: `Error deleting employee ${firstName} ${lastName}.`,
-        success: false,
-        timestamp: new Date().toISOString(),
-      };
-      await writeErrorToFile(errorData);
-      return errorData;
-    }
+    await this.btn.delete!.click();
+    await this.btn.confirmDelete!.click();
+
+    return {
+      message: `Employee ${firstName} ${lastName} deleted successfully.`,
+      success: true,
+      timestamp: new Date().toISOString(),
+    };
   }
 
   async goto(path = "/web/index.php/auth/login") {
@@ -138,8 +123,8 @@ export default class LoginPage {
   }
 
   async login(username: string, password: string) {
-    await this.loginUsernameInput.fill(username);
-    await this.loginPasswordInput.fill(password);
+    await this.input.loginUsername!.fill(username);
+    await this.input.loginPassword!.fill(password);
     await this.btn.submit!.click();
   }
 
@@ -150,22 +135,17 @@ export default class LoginPage {
 
   async searchEmployee(firstName: string, middleName: string, lastName: string): Promise<boolean> {
     const fullName = `${firstName} ${middleName} ${lastName}`;
-    try {
-      await this.searchBox.fill(fullName);
-      const employeeRow = this.page.getByText(fullName, { exact: true });
-      await employeeRow.waitFor({ state: "visible", timeout: 3000 });
-      await this.btn.search!.click();
-      return true;
-    } catch (error: unknown) {
-      const errorDetails = {
-        employee: fullName,
-        error: error instanceof Error ? error.message : "Unknown error",
-        message: "Failed to find employee",
-        timestamp: new Date().toISOString(),
-      };
-      await writeErrorToFile(errorDetails);
+    await this.searchBox.fill(fullName);
+    const employeeRow = await this.page.getByText(fullName, { exact: true }).elementHandle();
+
+    const isEmployeeFound = await employeeRow!.isVisible();
+
+    if (!isEmployeeFound) {
       return false;
     }
+
+    await this.btn.search!.click();
+    return true;
   }
 }
 
