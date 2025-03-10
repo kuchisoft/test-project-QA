@@ -1,4 +1,5 @@
 import { expect, loginTest as test } from "../fixtures/loginPage.fixture";
+import { colors } from "../helpers/colorHelper";
 
 test.describe(
   "Login and tables QA Test",
@@ -17,59 +18,53 @@ test.describe(
     });
 
     test.describe("Login Tests", () => {
-      test.beforeEach(async ({ defaultUserdata, LoginPage }) => {
+      test.beforeEach(async ({ defaultUserdata, generatedUser, LoginPage }) => {
         const { link } = LoginPage;
-
         await LoginPage.login(defaultUserdata.user, defaultUserdata.pass);
+        await link.pim!.click();
+        await LoginPage.createUserEmployee(generatedUser);
         await link.pim!.click();
       });
 
-      test("Create and Login", { tag: ["@Create"] }, async ({ generatedUser, LoginPage }) => {
-        await LoginPage.createUserEmployee(generatedUser);
+      test("Create and Login", { tag: ["@login"] }, async ({ generatedUser, LoginPage }) => {
         await LoginPage.logout();
-
         await LoginPage.login(generatedUser.username, generatedUser.password);
         await LoginPage.goto("/web/index.php/dashboard/index");
       });
 
-      test.describe("Search and delete employee", () => {
-        test.beforeEach(async ({ generatedUser, LoginPage }) => {
-          const { link } = LoginPage;
-          await LoginPage.createEmployee(generatedUser);
-          await link.pim!.click();
-        });
+      test("Search, Confirm and Delete", { tag: ["@Search", "@delete"] }, async ({ generatedUser, LoginPage }) => {
+        const fullName = `${generatedUser.firstName} ${generatedUser.middleName} ${generatedUser.lastName}`;
+        await LoginPage.searchBox.fill(fullName);
+        const employeeRow = LoginPage.page.getByText(fullName, { exact: true });
+        await expect(employeeRow).toBeVisible({ timeout: 3000 });
+        await LoginPage.btn.search!.click();
 
-        test("Search and confirm", { tag: ["@search"] }, async ({ generatedUser, LoginPage }): Promise<void> => {
-          const isEmployeeFound = await LoginPage.searchEmployee(generatedUser.firstName, generatedUser.middleName, generatedUser.lastName);
-          expect(isEmployeeFound).toBe(true);
-        });
+        await LoginPage.deleteEmployee();
 
-        test("Delete and confirm", { tag: ["@delete"] }, async ({ generatedUser, LoginPage }) => {
-          await LoginPage.deleteEmployee(generatedUser.firstName, generatedUser.middleName, generatedUser.lastName);
-
-          const isEmployeeFound = await LoginPage.searchEmployee(generatedUser.firstName, generatedUser.middleName, generatedUser.lastName);
-          expect(isEmployeeFound).toBe(false);
-        });
+        await LoginPage.searchBox.fill(fullName);
+        await expect(employeeRow).toBeHidden();
       });
     });
 
-    test("Invalid credentials", { tag: ["@invalidLogin"] }, async ({ LoginPage }) => {
+    test("Invalid credentials", { tag: ["@login"] }, async ({ LoginPage }) => {
       await LoginPage.login("wrong_user", "wrong_password");
       await expect(LoginPage.errorAlert).toContainText("Invalid credentials");
     });
 
-    test("Check button color", { tag: ["@color", "@ui"] }, async ({ LoginPage }) => {
-      await LoginPage.btn.submit!.waitFor({ state: "visible" });
-      const buttonColor = await LoginPage.btn.color!.evaluate((el) => {
-        const computedStyle = window.getComputedStyle(el);
-        let colorValue = computedStyle.backgroundColor;
-        if (!colorValue || colorValue === "transparent" || colorValue === "") {
-          colorValue = computedStyle.color;
-        }
-        return colorValue;
+    test.describe("Color Tests", () => {
+      test("Check button text color", { tag: ["@color", "@ui"] }, async ({ LoginPage }) => {
+        await LoginPage.btn.submit!.waitFor({ state: "visible" });
+        const textColor = await colors.getColor(LoginPage.btn.submit!);
+        const expectedTextColor = colors.AppColors.white;
+        expect(textColor).toBe(expectedTextColor);
       });
-      const expectedColor = "rgb(255, 123, 29)";
-      expect.soft(buttonColor).toBe(expectedColor);
+
+      test("Check button background color", { tag: ["@color", "@ui"] }, async ({ LoginPage }) => {
+        await LoginPage.btn.submit!.waitFor({ state: "visible" });
+        const backgroundColor = await colors.getBackgroundColor(LoginPage.btn.submit!);
+        const expectedBackgroundColor = colors.AppColors.primary;
+        expect(backgroundColor).toBe(expectedBackgroundColor);
+      });
     });
   },
 );

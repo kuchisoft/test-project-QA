@@ -29,11 +29,12 @@ export const generateUserTest = base.extend<GenerateUserFixtures>({
       firstName: faker.person.firstName(),
       lastName: faker.person.lastName(),
       middleName: faker.person.middleName(),
-      password: faker.internet.password({
-        length: 10,
-        memorable: false,
-        pattern: /[A-Za-z0-9!@#$%^&*]/,
-      }),
+      password:
+        faker.internet.password({
+          length: 7,
+          memorable: false,
+          pattern: /[A-Za-z0-9!@#$%^&*]/,
+        }) + faker.string.numeric(3),
       username: faker.internet.userName(),
     };
     await use(generatedUser);

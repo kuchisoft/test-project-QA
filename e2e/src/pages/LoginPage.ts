@@ -1,16 +1,6 @@
 import { expect, Locator, Page } from "@playwright/test";
-import dotenv from "dotenv";
-import * as fs from "fs/promises";
-import * as path from "path";
 
 import { GeneratedUser } from "../fixtures/generateUser.fixture";
-
-dotenv.config();
-
-interface ErrorLog {
-  message: string;
-  timestamp: string;
-}
 
 export default class LoginPage {
   readonly btn: Record<string, Locator>;
@@ -60,15 +50,6 @@ export default class LoginPage {
     await expect(this.page).toHaveURL("/web/index.php/auth/login");
   }
 
-  async confirmLayout() {
-    await this.page.waitForLoadState("domcontentloaded");
-    await expect(this.page).toHaveTitle("OrangeHRM");
-    await expect(this.input.loginUsername!).toBeVisible();
-    await expect(this.input.loginPassword!).toBeVisible();
-    await expect(this.btn.submit!).toBeVisible();
-    await this.assertCurrentPage();
-  }
-
   async createEmployee(generatedUser: GeneratedUser): Promise<void> {
     await this.btn.add!.click();
     await this.input.firstName!.fill(generatedUser.firstName);
@@ -91,31 +72,10 @@ export default class LoginPage {
     await this.btn.save!.click();
   }
 
-  async deleteEmployee(
-    firstName: string,
-    middleName: string,
-    lastName: string,
-  ): Promise<{ message: string; success: boolean; timestamp: string }> {
-    const isEmployeeFound = await this.searchEmployee(firstName, middleName, lastName);
-
-    if (!isEmployeeFound) {
-      const errorData = {
-        message: `Employee ${firstName} ${middleName} ${lastName} not found. Skipping deletion.`,
-        success: false,
-        timestamp: new Date().toISOString(),
-      };
-      await writeErrorToFile(errorData);
-      return errorData;
-    }
-
+  async deleteEmployee(): Promise<void> {
     await this.btn.delete!.click();
     await this.btn.confirmDelete!.click();
-
-    return {
-      message: `Employee ${firstName} ${lastName} deleted successfully.`,
-      success: true,
-      timestamp: new Date().toISOString(),
-    };
+    await expect(this.page.locator('.oxd-toast-content-text:has-text("Successfully Deleted")')).toBeVisible();
   }
 
   async goto(path = "/web/index.php/auth/login") {
@@ -131,28 +91,6 @@ export default class LoginPage {
   async logout() {
     await this.userDropdown.click();
     await this.logoutMenuItem.click();
+    await expect(this.page.locator('.orangehrm-login-title:has-text("Login")')).toBeVisible();
   }
-
-  async searchEmployee(firstName: string, middleName: string, lastName: string): Promise<boolean> {
-    const fullName = `${firstName} ${middleName} ${lastName}`;
-    await this.searchBox.fill(fullName);
-    const employeeRow = await this.page.getByText(fullName, { exact: true }).elementHandle();
-
-    const isEmployeeFound = await employeeRow!.isVisible();
-
-    if (!isEmployeeFound) {
-      return false;
-    }
-
-    await this.btn.search!.click();
-    return true;
-  }
-}
-
-async function writeErrorToFile(errorData: ErrorLog, filename = "../../loginTest-results/delete-search-error-log.json"): Promise<void> {
-  const filePath: string = path.join(__dirname, filename);
-  const dirPath: string = path.dirname(filePath);
-  await fs.mkdir(dirPath, { recursive: true });
-  const errorString = JSON.stringify(errorData, null, 2) + "\n";
-  await fs.appendFile(filePath, errorString, "utf-8");
 }
