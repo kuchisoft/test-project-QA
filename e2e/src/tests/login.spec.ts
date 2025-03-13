@@ -1,5 +1,5 @@
 import { expect, loginTest as test } from "../fixtures/loginPage.fixture";
-import { colors } from "../helpers/colorHelper";
+import colors from "../helpers/colorHelper";
 
 test.describe(
   "Login and tables QA Test",
@@ -52,18 +52,18 @@ test.describe(
     });
 
     test.describe("Color Tests", () => {
-      test("Check button text color", { tag: ["@color", "@ui"] }, async ({ LoginPage }) => {
+      test.beforeEach(async ({ LoginPage }) => {
         await LoginPage.btn.submit!.waitFor({ state: "visible" });
+      });
+
+      test("Check button text color", { tag: ["@color", "@ui"] }, async ({ LoginPage }) => {
         const textColor = await colors.getColor(LoginPage.btn.submit!);
-        const expectedTextColor = colors.AppColors.white;
-        expect(textColor).toBe(expectedTextColor);
+        expect(textColor).toBe(colors.AppColors.white);
       });
 
       test("Check button background color", { tag: ["@color", "@ui"] }, async ({ LoginPage }) => {
-        await LoginPage.btn.submit!.waitFor({ state: "visible" });
         const backgroundColor = await colors.getBackgroundColor(LoginPage.btn.submit!);
-        const expectedBackgroundColor = colors.AppColors.primary;
-        expect(backgroundColor).toBe(expectedBackgroundColor);
+        expect(backgroundColor).toBe(colors.AppColors.primary);
       });
     });
   },
