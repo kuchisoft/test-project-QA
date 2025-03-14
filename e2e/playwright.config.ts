@@ -30,6 +30,14 @@ export default defineConfig({
         ...devices["Desktop Chrome"],
       },
     },
+    {
+      name: "links-tests",
+      testDir: "./src/tests",
+      use: {
+        baseURL: process.env.LINKS_URL,
+        ...devices["Desktop Chrome"],
+      },
+    },
   ],
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [["html", { open: process.env.CI ? "never" : "on-failure" }]],
