@@ -1,4 +1,4 @@
-import { Locator, Page } from "@playwright/test";
+import { expect, Locator, Page } from "@playwright/test";
 
 export default class LinksPage {
   readonly links: Locator;
@@ -14,13 +14,16 @@ export default class LinksPage {
     const requestOptions = { timeout: 30000 };
 
     for (const link of allLinks) {
-      const response = await this.page.request.get(link, requestOptions).catch(() => {
+      const response = await this.page.request.get(link, requestOptions).catch(() => null);
+      if (!response) {
         brokenLinks.push(`${link} - Failed to fetch`);
-        return null;
-      });
+        expect.soft(false, `${link} is not OK`).toBeTruthy();
+        continue;
+      }
 
-      if (response && !response.ok()) {
+      if (!response.ok()) {
         brokenLinks.push(`${link} - Status: ${response.status()}`);
+        expect.soft(false, `${link} is not OK`).toBeTruthy();
       }
     }
 
@@ -31,7 +34,7 @@ export default class LinksPage {
     return links.length > 0 ? links.join("\n") : "None";
   }
 
-  async getAllLinks(): Promise<{ allHrefs: (null | string)[]; invalidLinks: string[]; validLinks: Set<string> }> {
+  async getAllLinks(): Promise<Set<string>> {
     const allLinks = await this.links.all();
     const allHrefs = await Promise.all(
       allLinks.map(async (link) => {
@@ -39,22 +42,16 @@ export default class LinksPage {
       }),
     );
 
-    const invalidLinks: string[] = [];
-    const validLinks = new Set<string>();
+    const allValidHrefs = allHrefs.reduce((links, link) => {
+      expect.soft(link, `Link ${link} is not valid`).toBeTruthy();
 
-    for (const link of allHrefs) {
-      if (!link) {
-        invalidLinks.push("Empty link found");
-        continue;
+      if (link && !link.startsWith("mailto:")) {
+        links.add(new URL(link, this.page.url()).href);
       }
+      return links;
+    }, new Set<string>());
 
-      if (!link.startsWith("mailto:")) {
-        const fullUrl = new URL(link, this.page.url()).href;
-        validLinks.add(fullUrl);
-      }
-    }
-
-    return { allHrefs, invalidLinks, validLinks };
+    return allValidHrefs;
   }
 
   async goto(url: string) {

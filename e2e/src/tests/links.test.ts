@@ -1,4 +1,4 @@
-import { linksTest as test } from "../fixtures/linksPage.fixture";
+import { expect, linksTest as test } from "../fixtures/linksPage.fixture";
 
 test.describe(
   "Links Validation Test",
@@ -6,27 +6,16 @@ test.describe(
     annotation: { description: "This test suite validates all links on a website.", type: "test-case" },
   },
   () => {
-    test("Check for links", { tag: ["@links"] }, async ({ LinksPage }, testInfo) => {
+    test("Check for links", { tag: ["@links"] }, async ({ LinksPage }) => {
       await test.step("Gather all links", async () => {
-        const { allHrefs } = await LinksPage.getAllLinks();
-        await testInfo.attach("all-links-text", {
-          body: allHrefs.join("\n"),
-          contentType: "text/plain",
-        });
+        const allLinks = await LinksPage.getAllLinks();
+        expect(allLinks.size).toBeGreaterThan(0);
       });
 
       await test.step("Validate links", async () => {
-        const { invalidLinks, validLinks } = await LinksPage.getAllLinks();
-        const brokenLinks = await LinksPage.checkLinks(validLinks);
-
-        await testInfo.attach("broken-links-text", {
-          body: brokenLinks.join("\n"),
-          contentType: "text/plain",
-        });
-        await testInfo.attach("invalid-links-text", {
-          body: invalidLinks.join("\n"),
-          contentType: "text/plain",
-        });
+        const allLinks = await LinksPage.getAllLinks();
+        const brokenLinks = await LinksPage.checkLinks(allLinks);
+        expect(brokenLinks.length).toBe(0);
       });
     });
   },
