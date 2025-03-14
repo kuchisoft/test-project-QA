@@ -31,7 +31,7 @@ export default class LinksPage {
     return links.length > 0 ? links.join("\n") : "None";
   }
 
-  async getAllLinks(): Promise<{ invalidLinks: string[]; validLinks: Set<string> }> {
+  async getAllLinks(): Promise<{ allHrefs: (null | string)[]; invalidLinks: string[]; validLinks: Set<string> }> {
     const allLinks = await this.links.all();
     const allHrefs = await Promise.all(
       allLinks.map(async (link) => {
@@ -54,10 +54,10 @@ export default class LinksPage {
       }
     }
 
-    return { invalidLinks, validLinks };
+    return { allHrefs, invalidLinks, validLinks };
   }
 
-  async goto(url = "https://watuafrica.com/") {
-    await this.page.goto(url, { timeout: 30000, waitUntil: "domcontentloaded" });
+  async goto(url: string) {
+    await this.page.goto(url, { waitUntil: "domcontentloaded" });
   }
 }

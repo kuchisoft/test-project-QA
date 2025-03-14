@@ -1,6 +1,14 @@
 import { Locator } from "@playwright/test";
 
 class Colors {
+  expectedBackgroundColor() {
+    return this.AppColors.primary;
+  }
+
+  expectedTextColor() {
+    return this.AppColors.white;
+  }
+
   async getBackgroundColor(element: Locator): Promise<string> {
     return await element.evaluate((el) => window.getComputedStyle(el).backgroundColor);
   }

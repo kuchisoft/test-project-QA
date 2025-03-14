@@ -58,12 +58,12 @@ test.describe(
 
       test("Check button text color", { tag: ["@color", "@ui"] }, async ({ LoginPage }) => {
         const textColor = await colors.getColor(LoginPage.btn.submit!);
-        expect(textColor).toBe(colors.AppColors.white);
+        expect(textColor).toBe(colors.expectedTextColor());
       });
 
       test("Check button background color", { tag: ["@color", "@ui"] }, async ({ LoginPage }) => {
         const backgroundColor = await colors.getBackgroundColor(LoginPage.btn.submit!);
-        expect(backgroundColor).toBe(colors.AppColors.primary);
+        expect(backgroundColor).toBe(colors.expectedBackgroundColor());
       });
     });
   },

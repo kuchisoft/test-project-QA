@@ -23,7 +23,7 @@ export default defineConfig({
   fullyParallel: true,
   projects: [
     {
-      name: "tests",
+      name: "login-tests",
       testDir: "./src/tests",
       use: {
         baseURL: process.env.DEMOQA,
