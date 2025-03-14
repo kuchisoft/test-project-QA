@@ -24,7 +24,7 @@ export default defineConfig({
   projects: [
     {
       name: "login-tests",
-      testDir: "./src/tests",
+      testDir: "./src/tests/loginTests",
       use: {
         baseURL: process.env.DEMOQA,
         ...devices["Desktop Chrome"],
@@ -32,7 +32,7 @@ export default defineConfig({
     },
     {
       name: "links-tests",
-      testDir: "./src/tests",
+      testDir: "./src/tests/linksTests",
       use: {
         baseURL: process.env.LINKS_URL,
         ...devices["Desktop Chrome"],
@@ -43,7 +43,7 @@ export default defineConfig({
   reporter: [["html", { open: process.env.CI ? "never" : "on-failure" }]],
   /* Retry on CI only */
   retries: process.env.CI ? 1 : 0,
-  testDir: "./src/tests",
+  // testDir: "./src/tests",
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   timeout: 180000,
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */

@@ -1,4 +1,4 @@
-import { expect, linksTest as test } from "../fixtures/linksPage.fixture";
+import { expect, linksTest as test } from "../../fixtures/linksPage.fixture";
 
 test.describe(
   "Links Validation Test",

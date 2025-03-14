@@ -1,5 +1,5 @@
-import { expect, loginTest as test } from "../fixtures/loginPage.fixture";
-import colors from "../helpers/colorHelper";
+import { expect, loginTest as test } from "../../fixtures/loginPage.fixture";
+import colors from "../../helpers/colorHelper";
 
 test.describe(
   "Login and tables QA Test",

@@ -54,7 +54,7 @@ export default class LinksPage {
     return allValidHrefs;
   }
 
-  async goto(url: string) {
+  async goto(url = "/") {
     await this.page.goto(url, { waitUntil: "domcontentloaded" });
   }
 }
