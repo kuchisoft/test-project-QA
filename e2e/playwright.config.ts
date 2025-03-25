@@ -23,6 +23,22 @@ export default defineConfig({
   fullyParallel: true,
   projects: [
     {
+      name: "db-tests",
+      testDir: "./src/tests/db",
+      use: {
+        baseURL: process.env.DEMOQA,
+        ...devices["Desktop Chrome"],
+      },
+    },
+    {
+      name: "api-tests",
+      testDir: "./src/tests/api",
+      use: {
+        baseURL: process.env.API_URL,
+        ...devices["Desktop Chrome"],
+      },
+    },
+    {
       name: "login-tests",
       testDir: "./src/tests/login",
       use: {
@@ -40,7 +56,6 @@ export default defineConfig({
     },
   ],
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: [["html", { open: process.env.CI ? "never" : "on-failure" }]],
   /* Retry on CI only */
   retries: process.env.CI ? 1 : 0,
   testDir: "./src/tests",
